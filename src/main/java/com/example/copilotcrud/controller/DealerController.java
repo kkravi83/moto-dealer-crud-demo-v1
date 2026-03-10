@@ -4,13 +4,16 @@ import com.example.copilotcrud.dto.DealerRequest;
 import com.example.copilotcrud.entity.Dealer;
 import com.example.copilotcrud.service.DealerService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/dealers")
+@Validated
 public class DealerController {
 
     private final DealerService dealerService;
@@ -27,6 +30,12 @@ public class DealerController {
     @GetMapping("/{id}")
     public Dealer getDealerById(@PathVariable Long id) {
         return dealerService.getDealerById(id);
+    }
+
+    @GetMapping("/city/{city}")
+    public List<Dealer> getDealersByCity(
+            @PathVariable @NotBlank(message = "City must not be blank") String city) {
+        return dealerService.getDealersByCity(city);
     }
 
     @PostMapping

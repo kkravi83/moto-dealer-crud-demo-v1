@@ -52,6 +52,13 @@ public class DealerService {
         dealerRepository.delete(existing);
     }
 
+    public List<Dealer> getDealersByCity(String city) {
+        if (city == null || city.isBlank()) {
+            throw new BadRequestException("City parameter must not be blank");
+        }
+        return dealerRepository.findByCity(city);
+    }
+
     private Dealer mapToEntity(DealerRequest request, Dealer dealer) {
         dealer.setDealerName(request.getDealerName());
         dealer.setDealerCode(request.getDealerCode());

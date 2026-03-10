@@ -14,7 +14,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.example.copilotcrud.exception.BadRequestException;
+
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -67,5 +70,36 @@ class DealerControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(3L))
                 .andExpect(jsonPath("$.dealerCode").value("CWP102"));
+    }
+
+    @Test
+    void shouldReturnDealersByCity() throws Exception {
+        Dealer dealer = new Dealer(1L, "Trivandrum Moto Hub", "TMH001", "Thiruvananthapuram", "Kerala",
+                "+91 9876543210", 8, LocalDate.of(2022, 6, 15));
+
+        when(dealerService.getDealersByCity(eq("Thiruvananthapuram"))).thenReturn(List.of(dealer));
+
+        mockMvc.perform(get("/api/dealers/city/Thiruvananthapuram"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].city").value("Thiruvananthapuram"))
+                .andExpect(jsonPath("$[0].dealerName").value("Trivandrum Moto Hub"));
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenNoDealersInCity() throws Exception {
+        when(dealerService.getDealersByCity(eq("UnknownCity"))).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/dealers/city/UnknownCity"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenServiceThrowsBadRequestException() throws Exception {
+        when(dealerService.getDealersByCity(eq("InvalidCity")))
+                .thenThrow(new BadRequestException("City parameter must not be blank"));
+
+        mockMvc.perform(get("/api/dealers/city/InvalidCity"))
+                .andExpect(status().isBadRequest());
     }
 }
