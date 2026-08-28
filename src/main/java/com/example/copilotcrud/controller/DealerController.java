@@ -16,6 +16,7 @@ public class DealerController {
     private final DealerService dealerService;
 
     public DealerController(DealerService dealerService) {
+        System.out.println("lets log that i am in dealer controller");
         this.dealerService = dealerService;
     }
 
